@@ -335,7 +335,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   highlight: {fileID: 1272571320}
-  material: {fileID: 2100000, guid: d49c8318ffcfc1a498d5c8b7123a6b27, type: 2}
+  material: {fileID: 2100000, guid: ec2054053e29658439c20fc0eb217677, type: 2}
   cam: {fileID: 426286025}
   groundMask:
     serializedVersion: 2

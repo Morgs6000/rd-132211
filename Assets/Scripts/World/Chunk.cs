@@ -137,6 +137,7 @@ public class Chunk : MonoBehaviour {
 
         GetComponent<MeshCollider>().sharedMesh = mesh;
         GetComponent<MeshFilter>().mesh = mesh;
+        //GetComponent<MeshRenderer>().material = World.material;
     }
 
     private bool HasAdjacenteBlock(Vector3 adjacentBlock) {

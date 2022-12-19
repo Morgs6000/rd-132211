@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class World : MonoBehaviour {
     [SerializeField] private GameObject chunkPrefab;
+    //[SerializeField] public static Material material;
 
     public static Vector3Int WorldSizeInBlocks = new Vector3Int(
         256,
