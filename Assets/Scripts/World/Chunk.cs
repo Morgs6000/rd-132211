@@ -1,32 +1,35 @@
+using Assets.Scripts.World;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Chunk : MonoBehaviour {
+public class Chunk : ChunkData {
+
+    private readonly Dictionary<EnumBlockSide, Vector3> _blockSides = new Dictionary<EnumBlockSide, Vector3>(){
+            { EnumBlockSide.EAST, new Vector3(1, 0, 0) },
+            { EnumBlockSide.WEST, new Vector3(-1, 0, 0) },
+            { EnumBlockSide.TOP, new Vector3(0, 1, 0) },
+            { EnumBlockSide.BOTTOM, new Vector3(0, -1, 0) },
+            { EnumBlockSide.NORTH, new Vector3(0, 0, 1) },
+            { EnumBlockSide.SOUTH, new Vector3(0, 0, -1)  }
+            };
+
+    private readonly Dictionary<EnumBlockSide, Vector3[]> _blockSidesVertices = new Dictionary<EnumBlockSide, Vector3[]>(){
+                { EnumBlockSide.EAST, new Vector3[4]{new Vector3(1, 0, 0), new Vector3(1, 1, 0), new Vector3(1, 1, 1), new Vector3(1, 0, 1)} },
+                { EnumBlockSide.WEST, new Vector3[4]{new Vector3(0, 0, 1), new Vector3(0, 1, 1), new Vector3(0, 1, 0), new Vector3(0, 0, 0)} },
+                { EnumBlockSide.TOP, new Vector3[4]{new Vector3(0, 1, 0), new Vector3(0, 1, 1), new Vector3(1, 1, 1), new Vector3(1, 1, 0)} },
+                { EnumBlockSide.BOTTOM, new Vector3[4]{new Vector3(1, 0, 0), new Vector3(1, 0, 1), new Vector3(0, 0, 1), new Vector3(0, 0, 0)} },
+                { EnumBlockSide.NORTH, new Vector3[4]{new Vector3(1, 0, 1), new Vector3(1, 1, 1), new Vector3(0, 1, 1), new Vector3(0, 0, 1)} },
+                { EnumBlockSide.SOUTH, new Vector3[4]{new Vector3(0, 0, 0), new Vector3(0, 1, 0), new Vector3(1, 1, 0), new Vector3(1, 0, 0)} },
+            };
+
     private Mesh mesh;
 
     private List<Vector3> vertices = new List<Vector3>();
     private List<int> triangles = new List<int>();
     private List<Vector2> uv = new List<Vector2>();
 
-    private enum BlockSide {        
-        EAST,
-        WEST,
-        TOP,
-        BOTTOM,
-        NORTH,
-        SOUTH
-    }
-
     private int vertexIndex;
-
-    public static Vector3Int ChunkSize = new Vector3Int(
-        16, 
-        64, 
-        16
-    );
-
-    private BlockType[,,] blockData = new BlockType[ChunkSize.x, ChunkSize.y, ChunkSize.z];
 
     private BlockType blockType;
 
@@ -38,18 +41,23 @@ public class Chunk : MonoBehaviour {
         ChunkGen();
     }
 
+    public void SaveChunk()
+    {
+        SaveSystem.SaveChunk(this);
+    }
+
     private void Update() {
         
     }
 
-    public void SetBlock(Vector3 worldPos, BlockType b) {
+    public void SetBlock(Vector3 worldPos, BlockType blockType) {
         Vector3 localPos = worldPos - transform.position;
 
         int x = Mathf.FloorToInt(localPos.x);
         int y = Mathf.FloorToInt(localPos.y);
         int z = Mathf.FloorToInt(localPos.z);
 
-        blockData[x, y, z] = b;
+        blockData[x, y, z] = blockType;
 
         ChunkRenderer();
     }
@@ -93,6 +101,12 @@ public class Chunk : MonoBehaviour {
     }
 
     private void ChunkGen() {
+        if (SaveSystem.LoadChunk(this))
+        {
+            ChunkRenderer();
+            return;
+        }
+
         for(int x = 0; x < ChunkSize.x; x++) {
             for(int y = 0; y < ChunkSize.y; y++) {
                 for(int z = 0; z < ChunkSize.z; z++) {
@@ -150,7 +164,7 @@ public class Chunk : MonoBehaviour {
             y < 0 || y > ChunkSize.y - 1 ||
             z < 0 || z > ChunkSize.z - 1
         ) {
-            return false;
+            return true;// TODO: Pegar do chunk onde o bloco está
         }
         if(blockData[x, y, z] == BlockType.air) {
             return false;
@@ -166,24 +180,12 @@ public class Chunk : MonoBehaviour {
         int z = (int)offset.z;
 
         blockType = blockData[x, y, z];
-
-        if(!HasAdjacenteBlock(new Vector3(1, 0, 0) + offset)) {
-            VerticesGen(BlockSide.EAST, offset);
-        }
-        if(!HasAdjacenteBlock(new Vector3(-1, 0, 0) + offset)) {
-            VerticesGen(BlockSide.WEST, offset);
-        }
-        if(!HasAdjacenteBlock(new Vector3(0, 1, 0) + offset)) {
-            VerticesGen(BlockSide.TOP, offset);
-        }
-        if(!HasAdjacenteBlock(new Vector3(0, -1, 0) + offset)) {
-            VerticesGen(BlockSide.BOTTOM, offset);
-        }
-        if(!HasAdjacenteBlock(new Vector3(0, 0, 1) + offset)) {
-            VerticesGen(BlockSide.NORTH, offset);
-        }
-        if(!HasAdjacenteBlock(new Vector3(0, 0, -1) + offset)) {
-            VerticesGen(BlockSide.SOUTH, offset);
+        foreach (var side in _blockSides)
+        {
+            if (!HasAdjacenteBlock(side .Value + offset))
+            {
+                VerticesGen(side.Key, offset);
+            }
         }
     }
 
@@ -229,56 +231,11 @@ public class Chunk : MonoBehaviour {
         vertexIndex += 4;
     }
 
-    private void VerticesGen(BlockSide side, Vector3 offset) {
-        switch(side) {
-            case BlockSide.EAST: {
-                vertices.Add(new Vector3(1, 0, 0) + offset);
-                vertices.Add(new Vector3(1, 1, 0) + offset);
-                vertices.Add(new Vector3(1, 1, 1) + offset);
-                vertices.Add(new Vector3(1, 0, 1) + offset);
-
-                break;
-            }
-            case BlockSide.WEST: {
-                vertices.Add(new Vector3(0, 0, 1) + offset);
-                vertices.Add(new Vector3(0, 1, 1) + offset);
-                vertices.Add(new Vector3(0, 1, 0) + offset);
-                vertices.Add(new Vector3(0, 0, 0) + offset);
-
-                break;
-            }
-            case BlockSide.TOP: {
-                vertices.Add(new Vector3(0, 1, 0) + offset);
-                vertices.Add(new Vector3(0, 1, 1) + offset);
-                vertices.Add(new Vector3(1, 1, 1) + offset);
-                vertices.Add(new Vector3(1, 1, 0) + offset);
-
-                break;
-            }
-            case BlockSide.BOTTOM: {
-                vertices.Add(new Vector3(1, 0, 0) + offset);
-                vertices.Add(new Vector3(1, 0, 1) + offset);
-                vertices.Add(new Vector3(0, 0, 1) + offset);
-                vertices.Add(new Vector3(0, 0, 0) + offset);
-
-                break;
-            }
-            case BlockSide.NORTH: {
-                vertices.Add(new Vector3(1, 0, 1) + offset);
-                vertices.Add(new Vector3(1, 1, 1) + offset);
-                vertices.Add(new Vector3(0, 1, 1) + offset);
-                vertices.Add(new Vector3(0, 0, 1) + offset);
-
-                break;
-            }
-            case BlockSide.SOUTH: {
-                vertices.Add(new Vector3(0, 0, 0) + offset);
-                vertices.Add(new Vector3(0, 1, 0) + offset);
-                vertices.Add(new Vector3(1, 1, 0) + offset);
-                vertices.Add(new Vector3(1, 0, 0) + offset);
-
-                break;
-            }
+    private void VerticesGen(EnumBlockSide side, Vector3 offset)
+    {
+        for (var verticeIdx = 0; verticeIdx < 4; verticeIdx++)
+        {
+            vertices.Add(_blockSidesVertices[side][verticeIdx] + offset);
         }
 
         TrianglesGen();
