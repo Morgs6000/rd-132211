@@ -98,4 +98,25 @@ public class World : MonoBehaviour {
             }
         }
     }
+
+    /*
+    public BlockType VoxelLayers(Vector3 pos) {
+        if(
+            pos.x < 0 || pos.x > WorldSizeInBlocks.x - 1 ||
+            pos.y < 0 || pos.y > WorldSizeInBlocks.y - 1 ||
+            pos.z < 0 || pos.x > WorldSizeInBlocks.z - 1
+        ) {
+            return BlockType.air;
+        }
+        if(pos.y < 32) {
+            return BlockType.stone;
+        }
+        else if(pos.y == 32) {
+            return BlockType.grass_block;
+        }
+        else {
+            return BlockType.air;
+        }
+    }
+    */
 }

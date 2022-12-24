@@ -12,7 +12,7 @@ public class Highlight : MonoBehaviour {
     private MeshRenderer meshRenderer;
     
     // A malha a ser usada pelo objeto de destaque.
-    private Mesh mesh;
+    private Mesh highlighMesh;
 
     // As listas de vértices e triângulos da malha.
     private List<Vector3> vertices = new List<Vector3>();
@@ -29,17 +29,10 @@ public class Highlight : MonoBehaviour {
     [SerializeField] private LayerMask groundMask;
 
     // Um enumerador que representa os lados do objeto de destaque.
-    private enum HighlighSide {
-        EAST,
-        WEST,
-        TOP,
-        BOTTOM,
-        NORTH,
-        SOUTH
-    }
+    private enum HighlighSide { RIGHT, LEFT, TOP, BOTTOM, FRONT, BACK }
 
     // O número total de vértices na malha.
-    private int verticesCount;
+    private int vertexIndex;
     
     // Inicializa o objeto de destaque, criando sua malha e adicionando os componentes MeshFilter e MeshRenderer.
     private void Start() {
@@ -48,8 +41,8 @@ public class Highlight : MonoBehaviour {
         meshRenderer = (MeshRenderer)highlight.AddComponent(typeof(MeshRenderer));
 
         // Crie a malha
-        mesh = new Mesh();
-        mesh.name = "Highlight";
+        highlighMesh = new Mesh();
+        highlighMesh.name = "Highlight";
 
         // Gere a malha para o objeto de destaque.
         HighlighGen();
@@ -108,35 +101,35 @@ public class Highlight : MonoBehaviour {
         }
     }
 
-    // Adicione a malha ao MeshFilter e defina o material do MeshRenderer.
-    private void MeshRenderer() {
-        // Defina os vértices e triângulos da malha.
-        mesh.vertices = vertices.ToArray();
-        mesh.triangles = triangles.ToArray();
-
-        // Recalcule as normais da malha e otimize-a.
-        mesh.RecalculateNormals();
-        mesh.Optimize();
-
-        // Adicione a malha ao MeshFilter do seu GameObject
-        meshFilter.mesh = mesh;
-    }
-
     // Gere a malha para o objeto de destaque.
     private void HighlighGen() {
         // Adicione os vértices para cada lado do objeto de destaque.
-        VerticesGen(HighlighSide.EAST);
-        VerticesGen(HighlighSide.WEST);
-        VerticesGen(HighlighSide.TOP);
-        VerticesGen(HighlighSide.BOTTOM);
-        VerticesGen(HighlighSide.NORTH);
-        VerticesGen(HighlighSide.SOUTH);
+        VerticesAdd(HighlighSide.RIGHT);
+        VerticesAdd(HighlighSide.LEFT);
+        VerticesAdd(HighlighSide.TOP);
+        VerticesAdd(HighlighSide.BOTTOM);
+        VerticesAdd(HighlighSide.FRONT);
+        VerticesAdd(HighlighSide.BACK);
+    }
+
+    // Adicione a malha ao MeshFilter e defina o material do MeshRenderer.
+    private void MeshRenderer() {
+        // Defina os vértices e triângulos da malha.
+        highlighMesh.vertices = vertices.ToArray();
+        highlighMesh.triangles = triangles.ToArray();
+
+        // Recalcule as normais da malha e otimize-a.
+        highlighMesh.RecalculateNormals();
+        highlighMesh.Optimize();
+
+        // Adicione a malha ao MeshFilter do seu GameObject
+        meshFilter.mesh = highlighMesh;
     }
 
     // Adicione os vértices da malha para o lado especificado do objeto de destaque.
-    private void VerticesGen(HighlighSide side) {
+    private void VerticesAdd(HighlighSide side) {
         switch(side) {
-            case HighlighSide.EAST: {
+            case HighlighSide.RIGHT: {
                 // Adicione os vértices para o lado leste do objeto de destaque.
                 vertices.Add(new Vector3(1, 0, 0));
                 vertices.Add(new Vector3(1, 1, 0));
@@ -145,7 +138,7 @@ public class Highlight : MonoBehaviour {
 
                 break;
             }
-            case HighlighSide.WEST: {
+            case HighlighSide.LEFT: {
                 // Adicione os vértices para o lado oeste do objeto de destaque.
                 vertices.Add(new Vector3(0, 0, 1));
                 vertices.Add(new Vector3(0, 1, 1));
@@ -172,7 +165,7 @@ public class Highlight : MonoBehaviour {
 
                 break;
             }
-            case HighlighSide.NORTH: {
+            case HighlighSide.FRONT: {
                 // Adicione os vértices para o lado norte do objeto de destaque.
                 vertices.Add(new Vector3(1, 0, 1));
                 vertices.Add(new Vector3(1, 1, 1));
@@ -181,7 +174,7 @@ public class Highlight : MonoBehaviour {
 
                 break;
             }
-            case HighlighSide.SOUTH: {
+            case HighlighSide.BACK: {
                 // Adicione os vértices para o lado sul do objeto de destaque.
                 vertices.Add(new Vector3(0, 0, 0));
                 vertices.Add(new Vector3(0, 1, 0));
@@ -193,21 +186,21 @@ public class Highlight : MonoBehaviour {
         }
 
         // Adicione os triângulos para o lado atual do objeto de destaque.
-        TrianglesGen();
+        TrianglesAdd();
     }
 
     // Adicone os Triangulos dos Vertices para renderizar a face
-    private void TrianglesGen() {
+    private void TrianglesAdd() {
         // Primeiro Tiangulo
-        triangles.Add(0 + verticesCount);
-        triangles.Add(1 + verticesCount);
-        triangles.Add(2 + verticesCount);
+        triangles.Add(0 + vertexIndex);
+        triangles.Add(1 + vertexIndex);
+        triangles.Add(2 + vertexIndex);
 
         // Segundo Triangulo
-        triangles.Add(0 + verticesCount);
-        triangles.Add(2 + verticesCount);
-        triangles.Add(3 + verticesCount);
+        triangles.Add(0 + vertexIndex);
+        triangles.Add(2 + vertexIndex);
+        triangles.Add(3 + vertexIndex);
 
-        verticesCount += 4;
+        vertexIndex += 4;
     }
 }

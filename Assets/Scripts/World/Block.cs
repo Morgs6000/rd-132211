@@ -3,67 +3,59 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Block : MonoBehaviour {
-    private Mesh mesh;
+    private Mesh voxelMesh;
 
     private List<Vector3> vertices = new List<Vector3>();
     private List<int> triangles = new List<int>();
     private List<Vector2> uv = new List<Vector2>();
 
-    private enum BlockFace {        
-        EAST,
-        WEST,
-        TOP,
-        BOTTOM,
-        NORTH,
-        SOUTH
-    }
+    private enum VoxelSide { RIGHT, LEFT, TOP, BOTTOM, FRONT, BACK }
 
     private int vertexIndex;
 
-    [SerializeField] private BlockType blockType;
-    
-    void Start() {
-        // Crie a malha
-        mesh = new Mesh();
-        mesh.name = "Block";
+    private BlockType blockType;
+
+    private void Start() {
+        voxelMesh = new Mesh();
+        voxelMesh.name = "Block";
 
         BlockGen();
 
         MeshRenderer();
     }
 
-    void Update() {
+    private void Update() {
         
     }
 
-    private void MeshRenderer() {
-        mesh.vertices = vertices.ToArray();
-        mesh.triangles = triangles.ToArray();
-        mesh.uv = uv.ToArray();
-
-        mesh.RecalculateNormals();
-        mesh.Optimize();
-
-        // Adiciona a malha um colisor
-        GetComponent<MeshCollider>().sharedMesh = mesh;
-
-        // Adicione a malha ao MeshFilter do seu GameObject
-        GetComponent<MeshFilter>().mesh = mesh;
+    private void BlockGen() {
+        VerticesAdd(VoxelSide.RIGHT);
+        VerticesAdd(VoxelSide.LEFT);
+        VerticesAdd(VoxelSide.TOP);
+        VerticesAdd(VoxelSide.BOTTOM);
+        VerticesAdd(VoxelSide.FRONT);
+        VerticesAdd(VoxelSide.BACK);
     }
 
-    private void BlockGen() {
-        VerticesAdd(BlockFace.EAST);
-        VerticesAdd(BlockFace.WEST);
-        VerticesAdd(BlockFace.TOP);
-        VerticesAdd(BlockFace.BOTTOM);
-        VerticesAdd(BlockFace.NORTH);
-        VerticesAdd(BlockFace.SOUTH);
+    private void MeshRenderer() {
+        voxelMesh.vertices = vertices.ToArray();
+        voxelMesh.triangles = triangles.ToArray();
+        voxelMesh.uv = uv.ToArray();
+
+        voxelMesh.RecalculateNormals();
+        voxelMesh.Optimize();
+
+        // Adiciona a malha um colisor
+        GetComponent<MeshCollider>().sharedMesh = voxelMesh;
+
+        // Adicione a malha ao MeshFilter do seu GameObject
+        GetComponent<MeshFilter>().mesh = voxelMesh;
     }
 
     // Adicione os Vertices da Malha
-    private void VerticesAdd(BlockFace face) {
-        switch(face) {
-            case BlockFace.EAST: {
+    private void VerticesAdd(VoxelSide side) {
+        switch(side) {
+            case VoxelSide.RIGHT: {
                 vertices.Add(new Vector3(1, 0, 0));
                 vertices.Add(new Vector3(1, 1, 0));
                 vertices.Add(new Vector3(1, 1, 1));
@@ -71,7 +63,7 @@ public class Block : MonoBehaviour {
 
                 break;
             }
-            case BlockFace.WEST: {
+            case VoxelSide.LEFT: {
                 vertices.Add(new Vector3(0, 0, 1));
                 vertices.Add(new Vector3(0, 1, 1));
                 vertices.Add(new Vector3(0, 1, 0));
@@ -79,7 +71,7 @@ public class Block : MonoBehaviour {
 
                 break;
             }
-            case BlockFace.TOP: {
+            case VoxelSide.TOP: {
                 vertices.Add(new Vector3(0, 1, 0));
                 vertices.Add(new Vector3(0, 1, 1));
                 vertices.Add(new Vector3(1, 1, 1));
@@ -87,7 +79,7 @@ public class Block : MonoBehaviour {
 
                 break;
             }
-            case BlockFace.BOTTOM: {
+            case VoxelSide.BOTTOM: {
                 vertices.Add(new Vector3(1, 0, 0));
                 vertices.Add(new Vector3(1, 0, 1));
                 vertices.Add(new Vector3(0, 0, 1));
@@ -95,7 +87,7 @@ public class Block : MonoBehaviour {
 
                 break;
             }
-            case BlockFace.NORTH: {
+            case VoxelSide.FRONT: {
                 vertices.Add(new Vector3(1, 0, 1));
                 vertices.Add(new Vector3(1, 1, 1));
                 vertices.Add(new Vector3(0, 1, 1));
@@ -103,7 +95,7 @@ public class Block : MonoBehaviour {
 
                 break;
             }
-            case BlockFace.SOUTH: {
+            case VoxelSide.BACK: {
                 vertices.Add(new Vector3(0, 0, 0));
                 vertices.Add(new Vector3(0, 1, 0));
                 vertices.Add(new Vector3(1, 1, 0));
@@ -118,7 +110,7 @@ public class Block : MonoBehaviour {
         UVsPos();
     }
 
-    // Adicone os Triangulos dos Vertices para renderizar a face
+    // Adicone os Triangulos dos Vertices para renderizar a side
     private void TrianglesAdd() {
         // Primeiro Tiangulo
         triangles.Add(0 + vertexIndex);
