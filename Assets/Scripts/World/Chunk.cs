@@ -18,15 +18,13 @@ public class Chunk : MonoBehaviour {
     private int vertexIndex;
 
     // Tamanho do chunk em unidades de bloco
-    public static Vector3 ChunkSize = new Vector3(16, 64, 16);
+    public static Vector3 ChunkSizeInVoxels = new Vector3(16, 64, 16);
 
     // Dicionário que armazena as posições e os tipos de bloco presentes no chunk
-    private BlockType[,,] voxelMap = new BlockType[(int)ChunkSize.x, (int)ChunkSize.y, (int)ChunkSize.z];
+    private VoxelType[,,] voxelMap = new VoxelType[(int)ChunkSizeInVoxels.x, (int)ChunkSizeInVoxels.y, (int)ChunkSizeInVoxels.z];
 
     // Tipo de bloco atual
-    private BlockType blockType;
-
-    World world;
+    private VoxelType voxelType;
 
     // Lista de todos os chunks do mundo
     public static List<Chunk> chunkList = new List<Chunk>();
@@ -44,7 +42,7 @@ public class Chunk : MonoBehaviour {
     }
 
     // Adiciona um bloco à voxel map e atualiza a malha do chunk
-    public void SetBlock(Vector3 worldPos, BlockType b) {
+    public void SetBlock(Vector3 worldPos, VoxelType voxel) {
         // Calcula a posição local do bloco em relação ao chunk
         Vector3 localPos = worldPos - transform.position;
 
@@ -53,7 +51,7 @@ public class Chunk : MonoBehaviour {
         int z = Mathf.FloorToInt(localPos.z);
 
         // Adiciona o bloco à voxel map
-        voxelMap[x, y, z] = b;
+        voxelMap[x, y, z] = voxel;
 
         // Atualiza a malha do chunk para refletir o novo bloco
         ChunkRenderer();
@@ -67,9 +65,9 @@ public class Chunk : MonoBehaviour {
 
             // Verifica se a posição dada está dentro dos limites do chunk
             if(
-                pos.x < chunkPos.x || pos.x >= chunkPos.x + ChunkSize.x || 
-                pos.y < chunkPos.y || pos.y >= chunkPos.y + ChunkSize.y || 
-                pos.z < chunkPos.z || pos.z >= chunkPos.z + ChunkSize.z
+                pos.x < chunkPos.x || pos.x >= chunkPos.x + ChunkSizeInVoxels.x || 
+                pos.y < chunkPos.y || pos.y >= chunkPos.y + ChunkSizeInVoxels.y || 
+                pos.z < chunkPos.z || pos.z >= chunkPos.z + ChunkSizeInVoxels.z
             ) {
                 // A posição não está neste chunk, passa para o próximo
                 continue;
@@ -82,14 +80,6 @@ public class Chunk : MonoBehaviour {
         // Nenhum chunk contém a posição dada
         return null;
     }
-
-    /*
-    Vector3 position {
-        get {
-            return transform.position;
-        }
-    }
-    */
     
     //*
     // Gera as camadas de blocos do chunk de acordo com sua posição
@@ -104,29 +94,29 @@ public class Chunk : MonoBehaviour {
         int _z = z + (int)transform.position.z;
 
         // Ajusta a posição global para o tamanho do mundo
-        _x += (int)World.WorldSizeInBlocks.x;
-        _z += (int)World.WorldSizeInBlocks.z;
+        _x += (int)World.WorldSizeInVoxels.x;
+        _z += (int)World.WorldSizeInVoxels.z;
 
         // Adiciona um bloco de pedra abaixo da superfície
         if(_y < 32) {
-            voxelMap[x, y, z] = BlockType.stone;
+            voxelMap[x, y, z] = VoxelType.stone;
         }
         // Adiciona um bloco de grama na superfície
         else if(_y == 32) {
-            voxelMap[x, y, z] = BlockType.grass_block;
+            voxelMap[x, y, z] = VoxelType.grass_block;
         }
         // Adiciona um bloco de ar acima da superfície
         else {
-            voxelMap[x, y, z] = BlockType.air;
+            voxelMap[x, y, z] = VoxelType.air;
         }
     }
     //*/
 
     // Gera todos os blocos do chunk
     private void ChunkGen() {
-        for(int x = 0; x < ChunkSize.x; x++) {
-            for(int y = 0; y < ChunkSize.y; y++) {
-                for(int z = 0; z < ChunkSize.z; z++) {
+        for(int x = 0; x < ChunkSizeInVoxels.x; x++) {
+            for(int y = 0; y < ChunkSizeInVoxels.y; y++) {
+                for(int z = 0; z < ChunkSizeInVoxels.z; z++) {
                     ChunkLayersGen(new Vector3(x, y, z));
                     //voxelMap[x, y, z] = world.VoxelLayers(new Vector3(x, y, z) + position);
                 }
@@ -153,11 +143,11 @@ public class Chunk : MonoBehaviour {
         vertexIndex = 0;
 
         // Percorre os voxels do chunk
-        for(int x = 0; x < ChunkSize.x; x++) {
-            for(int y = 0; y < ChunkSize.y; y++) {
-                for(int z = 0; z < ChunkSize.z; z++) {
+        for(int x = 0; x < ChunkSizeInVoxels.x; x++) {
+            for(int y = 0; y < ChunkSizeInVoxels.y; y++) {
+                for(int z = 0; z < ChunkSizeInVoxels.z; z++) {
                     // Se o voxel atual não for ar, adiciona suas faces à malha
-                    if(voxelMap[x, y, z] != BlockType.air) {
+                    if(voxelMap[x, y, z] != VoxelType.air) {
                         BlockGen(new Vector3(x, y, z));
                     }
                 }
@@ -186,13 +176,13 @@ public class Chunk : MonoBehaviour {
         int z = (int)offset.z;
         
         if(
-            x < 0 || x > ChunkSize.x - 1 ||
-            y < 0 || y > ChunkSize.y - 1 ||
-            z < 0 || z > ChunkSize.z - 1
+            x < 0 || x > ChunkSizeInVoxels.x - 1 ||
+            y < 0 || y > ChunkSizeInVoxels.y - 1 ||
+            z < 0 || z > ChunkSizeInVoxels.z - 1
         ) {
             return false;
         }
-        if(voxelMap[x, y, z] == BlockType.air) {
+        else if(voxelMap[x, y, z] == VoxelType.air) {
             return false;
         }
         else {
@@ -205,7 +195,7 @@ public class Chunk : MonoBehaviour {
         int y = (int)offset.y;
         int z = (int)offset.z;
         
-        blockType = voxelMap[x, y, z];
+        voxelType = voxelMap[x, y, z];
 
         if(!HasSolidNeighbor(new Vector3(1, 0, 0) + offset)) {
             VerticesAdd(VoxelSide.RIGHT, offset);
@@ -304,7 +294,7 @@ public class Chunk : MonoBehaviour {
             0
         );
 
-        Vector2 textureSize = new Vector2(
+        Vector2 textureSizeInTiles = new Vector2(
             16 + offset.x,
             16 + offset.y
         );
@@ -312,10 +302,10 @@ public class Chunk : MonoBehaviour {
         float x = textureCoordinate.x + offset.x;
         float y = textureCoordinate.y + offset.y;
 
-        float _x = 1.0f / textureSize.x;
-        float _y = 1.0f / textureSize.y;
+        float _x = 1.0f / textureSizeInTiles.x;
+        float _y = 1.0f / textureSizeInTiles.y;
 
-        y = (textureSize.y - 1) - y;
+        y = (textureSizeInTiles.y - 1) - y;
 
         x *= _x;
         y *= _y;
@@ -330,12 +320,12 @@ public class Chunk : MonoBehaviour {
         // Pre-Classic | rd-132211
         
         // STONE
-        if(blockType == BlockType.stone) {
+        if(voxelType == VoxelType.stone) {
             UVsAdd(new Vector2(1, 0));
         }
 
         // GRASS BLOCK
-        if(blockType == BlockType.grass_block) {
+        if(voxelType == VoxelType.grass_block) {
             UVsAdd(new Vector2(0, 0));
         }
     }

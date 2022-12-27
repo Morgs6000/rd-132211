@@ -13,7 +13,7 @@ public class Block : MonoBehaviour {
 
     private int vertexIndex;
 
-    private BlockType blockType;
+    private VoxelType voxelType;
 
     private void Start() {
         voxelMesh = new Mesh();
@@ -159,12 +159,12 @@ public class Block : MonoBehaviour {
         // Pre-Classic | rd-132211
         
         // STONE
-        if(blockType == BlockType.stone) {
+        if(voxelType == VoxelType.stone) {
             UVsAdd(new Vector2(1, 0));
         }
 
         // GRASS BLOCK
-        if(blockType == BlockType.grass_block) {
+        if(voxelType == VoxelType.grass_block) {
             UVsAdd(new Vector2(0, 0));
         }
     }

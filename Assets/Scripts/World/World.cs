@@ -4,17 +4,17 @@ using UnityEngine;
 
 public class World : MonoBehaviour {
     // Tamanho do mundo em blocos
-    public static Vector3 WorldSizeInBlocks = new Vector3(
+    public static Vector3 WorldSizeInVoxels = new Vector3(
         256,
         64,
         256
     );
     
     // Tamanho do mundo em chunks
-    public static Vector3 WorldSize = new Vector3(
-        WorldSizeInBlocks.x / Chunk.ChunkSize.x,
-        WorldSizeInBlocks.y / Chunk.ChunkSize.y,
-        WorldSizeInBlocks.z / Chunk.ChunkSize.z
+    public static Vector3 WorldSizeInChunks = new Vector3(
+        WorldSizeInVoxels.x / Chunk.ChunkSizeInVoxels.x,
+        WorldSizeInVoxels.y / Chunk.ChunkSizeInVoxels.y,
+        WorldSizeInVoxels.z / Chunk.ChunkSizeInVoxels.z
     );
     
     // Dicionário de chunks
@@ -29,6 +29,9 @@ public class World : MonoBehaviour {
     // Prefab de chunk
     [SerializeField] private GameObject chunkPrefab;
 
+    // Lista de todos os chunks do mundo
+    public static List<Chunk> chunkList = new List<Chunk>();
+
     // Inicializa a geração do mundo
     private void Start() {
         WorldGen();
@@ -42,14 +45,14 @@ public class World : MonoBehaviour {
     // Gera o mundo
     private void WorldGen() {
         // Itera pelas coordenadas de chunk
-        for(int x = -((int)WorldSize.x / 2); x < ((int)WorldSize.x / 2); x++) {
-            for(int y = 0; y < WorldSize.y; y++) {
-                for(int z = -((int)WorldSize.z / 2); z < ((int)WorldSize.z / 2); z++) {
+        for(int x = -((int)WorldSizeInChunks.x / 2); x < ((int)WorldSizeInChunks.x / 2); x++) {
+            for(int y = 0; y < WorldSizeInChunks.y; y++) {
+                for(int z = -((int)WorldSizeInChunks.z / 2); z < ((int)WorldSizeInChunks.z / 2); z++) {
                     // Calcula o deslocamento do chunk
                     Vector3 chunkOffset = new Vector3(
-                        x * Chunk.ChunkSize.x,
-                        y * Chunk.ChunkSize.y,
-                        z * Chunk.ChunkSize.z
+                        x * Chunk.ChunkSizeInVoxels.x,
+                        y * Chunk.ChunkSizeInVoxels.y,
+                        z * Chunk.ChunkSizeInVoxels.z
                     );
 
                     // Adiciona o chunk ao dicionário
@@ -62,18 +65,18 @@ public class World : MonoBehaviour {
     // Renderiza os chunks do mundo
     private IEnumerator WorldRenderer() {
         // Calcula a posição do jogador em chunks
-        int posX = Mathf.FloorToInt(player.position.x / Chunk.ChunkSize.x);
-        int posZ = Mathf.FloorToInt(player.position.z / Chunk.ChunkSize.z);
+        int posX = Mathf.FloorToInt(player.position.x / Chunk.ChunkSizeInVoxels.x);
+        int posZ = Mathf.FloorToInt(player.position.z / Chunk.ChunkSizeInVoxels.z);
 
         // Itera pelas coordenadas de chunk dentro da distância de visualização
         for(int x = -viewDistance; x < viewDistance; x++) {
-            for(int y = 0; y < WorldSize.y; y++) {
+            for(int y = 0; y < WorldSizeInChunks.y; y++) {
                 for(int z = -viewDistance; z < viewDistance; z++) {
                     // Calcula o deslocamento do chunk
                     Vector3 chunkOffset = new Vector3(
-                        (x + posX) * Chunk.ChunkSize.x,
-                        y * Chunk.ChunkSize.y,
-                        (z + posZ) * Chunk.ChunkSize.z
+                        (x + posX) * Chunk.ChunkSizeInVoxels.x,
+                        y * Chunk.ChunkSizeInVoxels.y,
+                        (z + posZ) * Chunk.ChunkSizeInVoxels.z
                     );
 
                     // Obtém o chunk no deslocamento especificado
@@ -87,8 +90,12 @@ public class World : MonoBehaviour {
                     if(chunks.ContainsKey(chunkOffset)) {
                         // Verifica se o chunk ainda não foi instanciado no mundo
                         if(c == null) {
-                            GameObject chunk = Instantiate(chunkPrefab, chunkOffset, Quaternion.identity, this.transform);
-                            chunk.name = "Chunk(" + (x + posX) + ", " + (z + posZ) + ")";
+                            GameObject chunk = Instantiate(chunkPrefab);
+                            chunk.transform.position = chunkOffset;
+                            chunk.transform.SetParent(transform);
+                            chunk.name = "Chunk: " + (x + posX) + ", " + (z + posZ);
+
+                            //chunkList.Add(chunk.GetComponent<Chunk>());
                         }
                     }
 
@@ -97,26 +104,31 @@ public class World : MonoBehaviour {
                 }
             }
         }
-    }
+    }    
 
     /*
-    public BlockType VoxelLayers(Vector3 pos) {
-        if(
-            pos.x < 0 || pos.x > WorldSizeInBlocks.x - 1 ||
-            pos.y < 0 || pos.y > WorldSizeInBlocks.y - 1 ||
-            pos.z < 0 || pos.x > WorldSizeInBlocks.z - 1
-        ) {
-            return BlockType.air;
+    // Retorna o chunk que contém a posição dada, se houver
+    public static Chunk GetChunk(Vector3 pos) {
+        for(int i = 0; i < chunkList.Count; i++) {            
+            // Calcula a posição do chunk atual
+            Vector3 chunkPos = chunkList[i].transform.position;
+
+            // Verifica se a posição dada está dentro dos limites do chunk
+            if(
+                pos.x < chunkPos.x || pos.x >= chunkPos.x + Chunk.ChunkSizeInVoxels.x || 
+                pos.y < chunkPos.y || pos.y >= chunkPos.y + Chunk.ChunkSizeInVoxels.y || 
+                pos.z < chunkPos.z || pos.z >= chunkPos.z + Chunk.ChunkSizeInVoxels.z
+            ) {
+                // A posição não está neste chunk, passa para o próximo
+                continue;
+            }
+
+            // A posição está neste chunk, retorna o chunk
+            return chunkList[i];
         }
-        if(pos.y < 32) {
-            return BlockType.stone;
-        }
-        else if(pos.y == 32) {
-            return BlockType.grass_block;
-        }
-        else {
-            return BlockType.air;
-        }
+
+        // Nenhum chunk contém a posição dada
+        return null;
     }
     */
 }

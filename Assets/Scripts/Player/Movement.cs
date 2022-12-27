@@ -105,12 +105,12 @@ public class Movement : MonoBehaviour {
     // Respawna o personagem em uma posição aleatória
     private void Respawn() {
         /*
-        float x = Random.Range(-((World.WorldSize.x * Chunk.ChunkSize.x) / 2), ((World.WorldSize.x * Chunk.ChunkSize.x) / 2));
-        float z = Random.Range(-((World.WorldSize.z * Chunk.ChunkSize.z) / 2), ((World.WorldSize.z * Chunk.ChunkSize.z) / 2));
+        float x = Random.Range(-((World.WorldSize.x * Chunk.ChunkSizeInVoxels.x) / 2), ((World.WorldSize.x * Chunk.ChunkSizeInVoxels.x) / 2));
+        float z = Random.Range(-((World.WorldSize.z * Chunk.ChunkSizeInVoxels.z) / 2), ((World.WorldSize.z * Chunk.ChunkSizeInVoxels.z) / 2));
         */
         // Calcula uma posição aleatória para o respawn baseada na distância de visualização do mundo e no tamanho dos chunks
-        float x = Random.Range(-((World.viewDistance * Chunk.ChunkSize.x) / 2), ((World.viewDistance * Chunk.ChunkSize.x) / 2));
-        float z = Random.Range(-((World.viewDistance * Chunk.ChunkSize.z) / 2), ((World.viewDistance * Chunk.ChunkSize.z) / 2));
+        float x = Random.Range(-((World.viewDistance * Chunk.ChunkSizeInVoxels.x) / 2), ((World.viewDistance * Chunk.ChunkSizeInVoxels.x) / 2));
+        float z = Random.Range(-((World.viewDistance * Chunk.ChunkSizeInVoxels.z) / 2), ((World.viewDistance * Chunk.ChunkSizeInVoxels.z) / 2));
         
         // Cria um vetor de posição com a posição aleatória e uma altura de 64 unidades
         Vector3 respawn = new Vector3(x, 64.0f, z);

@@ -43,7 +43,7 @@ public class DestroyAddBlocks : MonoBehaviour {
                 ));
 
                 // Altera o tipo de bloco no chunk para "air" (ar)
-                c.SetBlock(pointPos, BlockType.air);
+                c.SetBlock(pointPos, VoxelType.air);
             }
         }
     }
@@ -66,7 +66,7 @@ public class DestroyAddBlocks : MonoBehaviour {
                     Vector3.Distance(cam.position, pointPos) > 1.0f;
 
                 // Se a altura do novo bloco for maior que o tamanho do chunk, não adiciona o bloco
-                if(this.transform.position.y - 1 > Chunk.ChunkSize.y) {
+                if(this.transform.position.y - 1 > Chunk.ChunkSizeInVoxels.y) {
                     return;
                 }
                 // Caso contrário, adiciona o bloco se a posição for válida
@@ -79,7 +79,7 @@ public class DestroyAddBlocks : MonoBehaviour {
                     ));
 
                     // Altera o tipo de bloco no chunk para "stone" (pedra)
-                    c.SetBlock(pointPos, BlockType.stone);
+                    c.SetBlock(pointPos, VoxelType.stone);
                 }                
             }
         }
