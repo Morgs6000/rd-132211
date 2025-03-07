@@ -39,8 +39,6 @@ Controles
 - O jogador sempre spawna em y74.
 
 ## To-Do
-- ⚠ Gerando um colisor AABB
-- ⚠ Gravidade e pulo
 - ⚠ Raycast
 - ⚠ Highlight
 - ⚠ Quebrar blocos
