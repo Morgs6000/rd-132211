@@ -73,4 +73,11 @@ public class Level {
             return light;
         }
     }
+
+    // Método para definir o estado de um bloco
+    public void SetTile(int x, int y, int z, byte id) {
+        if(x >= 0 && y >= 0 && z >= 0 && x < width && y < height && z < depth) {
+            blocks[(y * depth + z) * width + x] = id;
+        }
+    }
 }
