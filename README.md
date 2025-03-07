@@ -1,6 +1,6 @@
 # rd-132211
  
-Este projeto tem como objetivo recirar o Minecraft usando a linguagem C# e a biblioteca OpenTK.
+Este projeto tem como objetivo recriar o Minecraft usando a linguagem C# e a biblioteca OpenTK.
 
 Este é uma continuação da rd-131655 (Cave game tech test):
 - https://github.com/Morgs6000/rd-131655/tree/main
