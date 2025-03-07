@@ -9,6 +9,7 @@ public class Raycast {
     private Level level;
     private Player player;
     private Tesselator t;
+    private Vector3 blockPos;
 
     public Raycast(Level level, Player player) {
         shader = new Shader("src/shaders/highlight_vertex.glsl", "src/shaders/highlight_fragment.glsl");
@@ -20,7 +21,12 @@ public class Raycast {
     }
 
     public void OnUpdateFrame() {
-        HighlightTargetedBlock();
+        if(Cast()) {
+            Highlight((int)blockPos.X, (int)blockPos.Y, (int)blockPos.Z);
+        }
+        else {
+            t.Init();
+        }
     }
 
     public void OnRenderFrame(Vector2i clientSize) {
@@ -40,42 +46,31 @@ public class Raycast {
         shader.SetMatrix4("projection", projection);
     }
 
-    public Vector3? Cast(Player player, Level level, float maxDistance) {
+    public bool Cast() {
         Vector3 rayOrigin = player.position;
         Vector3 rayDirection = player.direction;
 
         float step = 0.1f;
+        float maxDistance = 5.0f;
         Vector3 currentPosition = rayOrigin;
 
         for(float distance = 0; distance < maxDistance; distance += step) {
             currentPosition += rayDirection * step;
 
-            int x = (int)Math.Floor(currentPosition.X);
-            int y = (int)Math.Floor(currentPosition.Y);
-            int z = (int)Math.Floor(currentPosition.Z);
+            blockPos = new Vector3(
+                (int)Math.Floor(currentPosition.X),
+                (int)Math.Floor(currentPosition.Y),
+                (int)Math.Floor(currentPosition.Z)
+            );
 
-            //Console.WriteLine($"Raycast: Checking block at ({x}, {y}, {z})");
-
-            if(level.IsTile(x, y, z)) {
+            if(level.IsTile((int)blockPos.X, (int)blockPos.Y, (int)blockPos.Z)) {
                 //Console.WriteLine($"Raycast: Block found at ({x}, {y}, {z})");
-                return new Vector3(x, y, z);
+                return true;
             }
         }
 
         //Console.WriteLine("Raycast: No block found within range.");
-        return null;
-    }
-
-    public void HighlightTargetedBlock() {
-        Vector3? highlightedBlock = Cast(player, level, 5.0f);
-
-        if(highlightedBlock.HasValue) {
-            int x = (int)highlightedBlock.Value.X;
-            int y = (int)highlightedBlock.Value.Y;
-            int z = (int)highlightedBlock.Value.Z;
-
-            Highlight(x, y, z);
-        }
+        return false;
     }
 
     public void Highlight(int x, int y, int z) {
