@@ -38,6 +38,9 @@ Controles
 - Os dados de nível são salvos em um único arquivo **level.dat** dentro da pasta do iniciador, ao contrário das versões futuras que possuem pastas dedicadas.
 - O jogador sempre spawna em y74.
 
+## Referencias
+- https://minecraft.wiki/w/Java_Edition_pre-Classic_rd-132211
+
 ## To-Do
 - ⚠ Raycast
 - ⚠ Highlight
@@ -47,6 +50,3 @@ Controles
 - ✅ Salvar o jogo
 
 ## Progresso
-
-## Referencias
-- https://minecraft.wiki/w/Java_Edition_pre-Classic_rd-132211
