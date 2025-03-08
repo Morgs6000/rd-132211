@@ -55,3 +55,6 @@ Controles
 ![Screenshot_465](https://github.com/user-attachments/assets/7163710d-a104-4724-9045-645f21e086d6)
 ![Screenshot_464](https://github.com/user-attachments/assets/97aa7a89-d669-4bc5-b3fd-dec5f9ebad02)
 ![Screenshot_466](https://github.com/user-attachments/assets/d2282681-0674-48de-8e7a-62fb38ae2038)
+
+### Quebrando blocos
+![Screenshot_467](https://github.com/user-attachments/assets/50d7da6a-1508-45b2-b472-dad57e2c97f0)
