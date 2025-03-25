@@ -65,7 +65,7 @@ public class Raycast {
         GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
 
         float alpha = (float)Math.Sin((double)Environment.TickCount / 100.0f) * 0.2f + 0.4f;
-        shader.SetColor("color0", 1.0f, 1.0f, 1.0f, 0.5f);
+        shader.SetColor("color0", 1.0f, 1.0f, 1.0f, alpha);
 
         t.Init();
         Tile.rock.RenderFace(t, h.x, h.y, h.z);

@@ -36,8 +36,7 @@ public class RubyDung : GameWindow {
         texture = new Texture("src/textures/terrain.png");
 
         // Cria um nível com 256x64x256 blocos
-        // level = new Level(256, 64, 256);
-        level = new Level(16, 16, 16);
+        level = new Level(256, 64, 256);
         levelRenderer = new LevelRenderer(shader, level);
         levelRenderer.OnLoad();
 

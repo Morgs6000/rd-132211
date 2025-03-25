@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "vNC+iZnwxOI=",
+  "dgSpecHash": "msWPz8MbosI=",
   "success": true,
-  "projectFilePath": "D:\\GitHub\\Meus Repositórios\\rd-132211\\rd-132211\\21\\RubyDung.csproj",
+  "projectFilePath": "D:\\GitHub\\Meus Repositórios\\rd-132211\\rd-132211\\21. Colocando Blocos\\RubyDung.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\Morgana Stradivarius\\.nuget\\packages\\opentk\\4.9.3\\opentk.4.9.3.nupkg.sha512",
     "C:\\Users\\Morgana Stradivarius\\.nuget\\packages\\opentk.audio.openal\\4.9.3\\opentk.audio.openal.4.9.3.nupkg.sha512",
